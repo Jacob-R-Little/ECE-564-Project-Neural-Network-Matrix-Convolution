@@ -65,6 +65,7 @@ def write_section(f,image,cnt,input_section):
 if (__name__ == "__main__"):         
     images = []
     outputs = []
+    base_outputs = []
     weights = []
 
     input_file = sys.argv[1]
@@ -90,6 +91,8 @@ if (__name__ == "__main__"):
         yaml_data = yaml.safe_load(yf)
         for out in yaml_data['outputs'] :
             outputs.append(yaml_data["outputs"][out])
+        for out in yaml_data['base-outputs'] :
+            base_outputs.append(yaml_data["base-outputs"][out])
 
     if("564" in path):
       input_file_name = 'input_sram_564.dat'
@@ -130,6 +133,33 @@ if (__name__ == "__main__"):
       cnt_1 = -1
       for out in outputs :
           cnt_1 = write_section(F,hex_conversion(out),cnt_1,False)
+    if("564" in path):
+      output_file_name = 'golden_base_outputs_564.dat'
+      with open(path + output_file_name, 'w') as F:
+        cnt_1 = -1
+        for out in base_outputs :
+            cnt_1 = write_section(F,hex_conversion(out),cnt_1,False)
+    else: 
+      output_file_name = 'golden_base_outputs_464.dat'
+      with open(path + output_file_name, 'w') as F:
+        cnt_1 = -1
+        for out in base_outputs :
+          base_out = []
+          for i, row in enumerate(out):
+            temp = []
+            for j, val in enumerate(row):
+              temp.append((val >> 8) & 0xFF)
+              temp.append(val & 0xFF)
+              temp.append((val >> 24) & 0xFF)
+              temp.append((val >> 16) & 0xFF)
+            base_out.append(temp)
+          cnt_1 = write_section(F,hex_conversion(base_out),cnt_1,False)
+
+
+    #with open(path + output_file_name, 'w') as F:
+    #  cnt_1 = -1
+    #  for out in outputs :
+    #      cnt_1 = write_section(F,hex_conversion(out),cnt_1,False)
         
         
         

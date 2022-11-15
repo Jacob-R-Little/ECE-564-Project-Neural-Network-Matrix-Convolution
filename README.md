@@ -66,22 +66,38 @@ All the .v files in ```projectFall2022/rtl/``` will be compiled with this comman
 ### How to run your design
 
 #### For ECE464
-Run with Modelsim UI:
+Run with Modelsim UI Extra:
 ```bash
-make debug-464
+make debug-464-extra
 ```
-Run without UI(Faster):
+Run with Modelsim UI Base:
 ```bash
-make verify-464
+make debug-464-base
+```
+Run without UI(Faster) Extra:
+```bash
+make verify-464-extra
+```
+Run without UI(Faster) Base:
+```bash
+make verify-464-base
 ```
 #### For ECE564
-Run with Modelsim UI:
+Run with Modelsim UI Extra:
 ```bash
-make debug-564
+make debug-564-extra
 ```
-Run without UI (faster):
+Run with Modelsim UI Base:
 ```bash
-make verify-564
+make debug-564-base
+```
+Run without UI(Faster) Extra:
+```bash
+make verify-564-extra
+```
+Run without UI(Faster) Base:
+```bash
+make verify-564-base
 ```
 
 ### How to compile and run the golden model

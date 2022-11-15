@@ -25,6 +25,7 @@ module tb_top();
   event simulationStart;
 
   string class_name = "464";
+  string run_type = "extra";
   integer rounds=1;
   integer timeout=100000000;
 
@@ -198,7 +199,10 @@ module tb_top();
     if(!$value$plusargs("CLASS=%s",class_name)) class_name = "464";
     if($value$plusargs("ROUNDS=%d",rounds));
     if($value$plusargs("TIMEOUT=%d",timeout));
+    if($value$plusargs("RUN_TYPE=%s",run_type));
     $display("+CLASS+%s",class_name);
+    $display("+RUN_TYPE+%s",run_type);
+
     repeat (5) @(posedge clk);
     ->simulationStart;
   end
@@ -306,8 +310,16 @@ module tb_top();
 
       golden_result_array.delete();
       $display("-------------------------------load results to golden_output_array-------------------------------\n");
-      $display("INFO::%m::readmem : %s ", $sformatf("../%s/input_%0d/golden_outputs_%s.dat",class_name,q,class_name));
-      $readmemh($sformatf("../%s/input_%0d/golden_outputs_%s.dat",class_name,q,class_name),golden_result_array);
+      if(run_type == "base")
+      begin
+        $display("INFO::%m::readmem : %s ", $sformatf("../%s/input_%0d/golden_base_outputs_%s.dat",class_name,q,class_name));
+        $readmemh($sformatf("../%s/input_%0d/golden_base_outputs_%s.dat",class_name,q,class_name),golden_result_array);
+      end
+      else
+      begin
+        $display("INFO::%m::readmem : %s ", $sformatf("../%s/input_%0d/golden_outputs_%s.dat",class_name,q,class_name));
+        $readmemh($sformatf("../%s/input_%0d/golden_outputs_%s.dat",class_name,q,class_name),golden_result_array);
+      end
       $display("-------------------------------Round %0d start compare -------------------------------\n",q);
       begin
         for(i=0;i<golden_result_array.size();i=i+1) 

@@ -52,6 +52,7 @@ module MyDesign (
 
 
   string class_name = "464";
+  string run_type = "extra";
   reg input_sram_download_complete;
   reg weights_sram_download_complete;
   reg write_output_sram_complete;
@@ -76,7 +77,10 @@ module MyDesign (
   reg [15:0] kernel_mem [0:NUM_OF_KERNEL_MEM-1];
   reg signed [7:0] max_pooling_data [0:OUTPUT_N-1][0:OUTPUT_N-1];
   reg signed [7:0] output_data [0:OUTPUT_N-1][0:OUTPUT_N-1];
+  reg signed [31:0] output_base_data [0:OUTPUT_N-1][0:OUTPUT_N-1];
   reg [15:0] output_mem [0:NUM_OF_OUTPUT_MEM-1];
+  reg [15:0] output_max_base_mem [0:NUM_OF_INPUT_MEM-1];
+  reg [15:0] output_base_mem [0:NUM_OF_INPUT_MEM-1];
   reg signed [19:0] temp;
   integer input_row,input_col;
   integer weights_row,weights_col;
@@ -241,6 +245,7 @@ module MyDesign (
           end
         end
         output_data[row][col] = temp < 0 ? 'h0 : temp > 20'd127 ? 8'd127 : temp ;
+        output_base_data[row][col] = {{12{temp[19]}},temp};
       end
     end
   end
@@ -294,6 +299,70 @@ module MyDesign (
           end
         end
       end
+    end
+  end
+  endtask
+
+  task translate_32bits_output;
+  input [31:0] N;
+  integer output_bound,i;
+  integer row_idx, col_idx;
+  begin
+    row_idx=0;
+    col_idx=0;
+    output_bound = N*N*2;
+    for(i=0;i<output_bound;i=i+1)
+    begin
+      output_base_mem[i*2] = output_base_data[row_idx][col_idx][15:0]; 
+      output_base_mem[i*2+1] = output_base_data[row_idx][col_idx][31:16]; 
+      if(col_idx == N-1)
+      begin
+        col_idx = 0;
+        row_idx = row_idx+1;
+      end
+      else
+        col_idx = col_idx+1;
+    end
+  end
+  endtask
+
+  task translate_max_output;
+  input [31:0] N;
+  integer output_bound,i;
+  integer row_idx1, row_idx2;
+  integer col_idx1, col_idx2;
+  begin
+    row_idx1=0;
+    row_idx2=0;
+    col_idx1=0;
+    col_idx2=1;
+    output_bound = (((N*N-1)/2)+1);
+    for(i=0;i<output_bound;i=i+1)
+    begin
+      output_max_base_mem[i] = {max_pooling_data[row_idx1][col_idx1],max_pooling_data[row_idx2][col_idx2]}; 
+      col_idx1=col_idx1+2;
+      col_idx2=col_idx2+2;
+      if(col_idx1 == N)
+      begin
+        col_idx1 = 0;
+        col_idx2 = 1;
+        row_idx1 = row_idx1+1;
+        row_idx2 = row_idx2+1;
+      end 
+      else if(col_idx2 == N)
+      begin
+        col_idx2 = 0;
+        row_idx2 = row_idx2+1;
+      end
+      if(col_idx1 > N)
+      begin
+        col_idx1=1;
+        row_idx1 = row_idx1+1;
+      end
+    end 
+    if(((N) %2) == 1)
+    begin
+      output_max_base_mem[i-1] = output_max_base_mem[i-1] & 16'hff00;
     end
   end
   endtask
@@ -358,10 +427,44 @@ module MyDesign (
   end
   endtask
 
+  task upload_max_output;
+  input [31:0] N;
+  integer output_bound,i;
+  begin
+    output_bound = (((N*N-1)/2)+1);
+    for(i=0;i<output_bound;i=i+1)
+    begin
+        output_sram_write_addresss = i+global_output_address;
+        output_sram_write_data = output_max_base_mem[i];
+        @(posedge clk);
+    end
+    if(class_name == "564")
+    begin
+      global_output_address = global_output_address + output_bound;
+    end
+  end
+  endtask
+
+  task upload_32bit_output;
+  input [31:0] N;
+  integer output_bound,i;
+  begin
+    output_bound = 2*N*N;
+    for(i=0;i<output_bound;i=i+1)
+    begin
+        output_sram_write_addresss = i+global_output_address;
+        output_sram_write_data = output_base_mem[i];
+        @(posedge clk);
+    end
+  end
+  endtask
+
+
   initial
   begin
     #1;
     if($value$plusargs("CLASS=%s",class_name));
+    if($value$plusargs("RUN_TYPE=%s",run_type));
     config_N=0;
     fork
       begin
@@ -422,9 +525,7 @@ module MyDesign (
           compute_convolution_with_relu_activation(config_N-2);
           if(class_name == "564")
           begin
-            #2
             max_pooling((config_N-2)/2);
-            #2
             compute_fully_connected_with_relu_activation((config_N-2)/2);
           end
           wait (system_state != `COMPUTE_OUTPUT);
@@ -442,14 +543,22 @@ module MyDesign (
           if(class_name == "564")
           begin
             translate_output((config_N-2)/2);
+            translate_max_output((config_N-2)/2);
             output_sram_write_enable=1;
-            upload_output((config_N-2)/2);
+            if(run_type == "base")
+              upload_max_output((config_N-2)/2);
+            else
+              upload_output((config_N-2)/2);
           end
           else
           begin
             translate_output(config_N-2);
+            translate_32bits_output(config_N-2);
             output_sram_write_enable=1;
-            upload_output(config_N-2);
+            if(run_type == "base")
+              upload_32bit_output(config_N-2);
+            else
+              upload_output(config_N-2);
           end
           output_sram_write_enable=0;
           write_output_sram_complete = 1'b1;
