@@ -46,7 +46,7 @@ module MyDesign (
 reg [3:0] accum_counter;                  // must be reset
 reg accumulate;                           // must be reset
 reg busy;                                 // must be reset
-reg [6:0] N;                              // must be reset
+reg [5:0] N_1;  // N shifted by 1         // must be reset
 reg [2:0] read_counter;                   // must be reset
 reg [5:0] row_counter, col_counter;       // must be reset
 
@@ -65,7 +65,6 @@ reg [11:0] output_sram_pointer, frame_pointer;           // must be reset
 
 wire accum_done;
 wire new_row, not_new_row, row_return, col_return;
-wire N_1; // N shifted by 1
 
 wire frame_offset[2:0][5:0];
 wire frame_offset_1;
@@ -97,8 +96,8 @@ assign weights_sram_read_address = read_counter;
 assign output_sram_write_addresss = output_sram_pointer;
 
 assign wait_accum = accumulate && (new_row || not_new_row) 
-assign col_return = (row_counter == ((N >> 1) - 1)) && (row_counter == ((N >> 1) - 1)) && (read_counter == 4)
-assign row_return = (row_counter == ((N >> 1) - 1)) && (read_counter == 4)
+assign col_return = (row_counter == (N_1 - 2)) && (row_counter == (N_1 - 2)) && (read_counter == 4)
+assign row_return = (row_counter == (N_1 - 2)) && (read_counter == 4)
 assign new_row = (row_counter == 0) && (read_counter == 8);
 assign not_new_row = (row_counter != 0) && (read_counter == 4);
 assign new_row_accum = (row_counter == 0) && (read_counter >= 3);
@@ -111,132 +110,130 @@ always@(posedge clk)
 begin
   if (!reset_b)
   begin
-    input_sram_pointer <= 0;
+    frame_pointer <= 0;
     read_input <= 0;
     read_counter <= 0;
     row_counter <= 0;
     col_counter <= 0;
     busy <= 0;
-    N <= 0;
+    N_1 <= 0;
     accumulate <= 0;
   end
   else if (dut_run) 
   begin
-    input_sram_pointer <= 1;
+    frame_pointer <= 1;
     read_input <= 1;
     read_counter <= 0;
     row_counter <= 0;
     col_counter <= 0;
     busy <= 1;
-    N <= input_sram_read_data[6:0];
+    N_1 <= input_sram_read_data[6:0] >> 1;
     accumulate <= 0;
   end
   else if (!busy)
   begin
-    input_sram_pointer <= 0;
+    frame_pointer <= 0;
     read_input <= 0;
     read_counter <= 0;
     row_counter <= 0;
     col_counter <= 0;
     busy <= 0;
-    N <= 0;
+    N_1 <= 0;
     accumulate <= 0;
   end
   else if (wait_accum)
   begin
-    input_sram_pointer <= input_sram_pointer;
+    frame_pointer <= frame_pointer;
     read_input <= 0;
     read_counter <= read_counter;
     row_counter <= row_counter;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     if (accum_done) accumulate <= 0;
     else accumulate <= 1; 
   end
   else if (col_return)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer + 1;
     read_input <= 1;
     read_counter <= 0;
     row_counter <= 0;
     col_counter <= 0;
     if (input_sram_read_data[15:0] == 16'hFF) busy <= 0;
-    N <= input_sram_read_data[6:0];
+    N_1 <= input_sram_read_data[6:0];
     accumulate <= 0;
   end
   else if (row_return)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer + 2;
     read_input <= 1;
     read_counter <= 0;
     row_counter <= 0;
     col_counter <= col_counter
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     accumulate <= 0;
   end
   else if (new_row)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer + 1;
     read_input <= 1;
     read_counter <= 0;
     row_counter <= row_counter + 1;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     accumulate <= 0;
   end
   else if (not_new_row)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer + 1;
     read_input <= 1;
     read_counter <= 0;
     row_counter <= row_counter + 1;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     accumulate <= 0;
   end
   else if (new_row_accum)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer;
     read_input <= 1;
     read_counter <= read_counter + 1;
     row_counter <= row_counter;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     accumulate <= 1;
   end
   else if (not_new_row_accum)
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer;
     read_input <= 1;
     read_counter <= read_counter + 1;
     row_counter <= row_counter;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1 <= N_1;
     accumulate <= 1;
   end
   else
   begin
-    input_sram_pointer <= input_sram_pointer + 1;
+    frame_pointer <= frame_pointer;
     read_input <= 1;
     read_counter <= read_counter + 1;
     row_counter <= row_counter;
     col_counter <= col_counter;
     busy <= 1;
-    N <= N;
+    N_1N <= N_1;
     accumulate <= 0;
   end
 
   if (accumulate) accum_counter <= accum_counter + 1;
   else accum_counter <= 0;
 end
-
-assign N_1 = N >> 1;
 
 assign frame_offset[0] = ((row_counter == 0) ? (read_counter > 1) : (read_counter > 0)) ? N_1 : 0;
 assign frame_offset[1] = ((row_counter == 0) ? (read_counter > 3) : (read_counter > 1)) ? N_1 : 0;
