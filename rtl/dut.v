@@ -57,7 +57,7 @@ signed reg [3:0][19:0] mul_accum_flops;   // 4 x 20 flops
 reg [7:0] output_flops;
 reg output_wait;                          // must be reset
 
-reg [11:0] output_sram_pointer, input_sram_pointer;           // must be reset
+reg [11:0] output_sram_pointer, frame_pointer;           // must be reset
 
 
 //---------------------------------------------------------------------------
@@ -65,6 +65,10 @@ reg [11:0] output_sram_pointer, input_sram_pointer;           // must be reset
 
 wire accum_done;
 wire new_row, not_new_row, row_return, col_return;
+wire N_1; // N shifted by 1
+
+wire frame_offset[2:0][5:0];
+wire frame_offset_1;
 
 signed wire [3:0][7:0] input_stride;
 signed wire [7:0] kernel_stride;
@@ -89,8 +93,7 @@ assign dut_busy = busy;
 assign input_sram_write_enable = 0;
 assign weights_sram_write_enable = 0;
 
-assign input_sram_read_address = input_sram_pointer;
-assign weights_sram_read_address = input_sram_pointer;
+assign weights_sram_read_address = read_counter;
 assign output_sram_write_addresss = output_sram_pointer;
 
 assign wait_accum = accumulate && (new_row || not_new_row) 
@@ -100,6 +103,8 @@ assign new_row = (row_counter == 0) && (read_counter == 8);
 assign not_new_row = (row_counter != 0) && (read_counter == 4);
 assign new_row_accum = (row_counter == 0) && (read_counter >= 3);
 assign not_new_row_accum = (row_counter != 0) && (read_counter >= 2);
+
+
 
 
 always@(posedge clk)
@@ -231,28 +236,33 @@ begin
   else accum_counter <= 0;
 end
 
-// read kernel
+assign N_1 = N >> 1;
+
+assign frame_offset[0] = ((row_counter == 0) ? (read_counter > 1) : (read_counter > 0)) ? N_1 : 0;
+assign frame_offset[1] = ((row_counter == 0) ? (read_counter > 3) : (read_counter > 1)) ? N_1 : 0;
+assign frame_offset[2] = ((row_counter == 0) ? (read_counter > 5) : (read_counter > 2)) ? N_1 : 0;
+assign frame_offset_1 = ((row_counter != 0) || read_counter[1]) ? 1 : 0;
+assign input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2]; + frame_offset_1;
+
+// input and kernel flop management
 always@(posedge clk)
 begin
   kernel_flops = kernel_flops;
-  if (input_sram_pointer < 4)
-  begin
-    kernel_flops[input_sram_pointer >> 1] = weights_sram_read_data[15:8];
-    kernel_flops[(input_sram_pointer >> 1) + 1] = weights_sram_read_data[7:0];
-  end
-  else if (input_sram_pointer == 4)
-  begin
-    kernel_flops[input_sram_pointer >> 1] = weights_sram_read_data[15:8];
-  end
-end
-
-// read input
-always@(posedge clk)
-begin
   input_flops = input_flops;
   if (read_input)
   begin
-  if (row_counter == 0)
+    // read kernel
+    if (read_counter < 4)
+    begin
+      kernel_flops[read_counter << 1] = weights_sram_read_data[15:8];
+      kernel_flops[(read_counter << 1) + 1] = weights_sram_read_data[7:0];
+    end
+    else if (read_counter == 4)
+    begin
+      kernel_flops[read_counter << 1] = weights_sram_read_data[15:8];
+    end    
+    // read input
+    if (row_counter == 0)
     begin
       input_flops[read_counter << 1] = input_sram_read_data[15:8];
       input_flops[(read_counter << 1) + 1] = input_sram_read_data[7:0];
@@ -322,7 +332,7 @@ assign ReLU_out = (pool_out > 8'sd127) ? 8'sd127 : pool_out;
 always@(posedge clk)
 begin
   casex({soft_reset, accum_done, /* last val */, output_wait})
-			4'b1xxx:
+		4'b1xxx:
 		begin
       output_sram_write_data <= 0;
       output_sram_write_enable <= 0;
