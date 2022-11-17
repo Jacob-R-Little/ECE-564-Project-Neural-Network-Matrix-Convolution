@@ -45,7 +45,7 @@ module MyDesign (
 
 reg [3:0] state;
 
-reg N_1;  // N shifted by 1
+reg [5:0] N_1;  // N shifted by 1
 
 reg [11:0] frame_pointer;
 
@@ -57,7 +57,7 @@ reg signed [7:0] IN_REG [15:0];
 reg signed [7:0] K_REG [8:0];
 
 reg signed [19:0] MAC [3:0];
-reg MAC_count;
+reg [3:0] MAC_count;
 
 reg signed [7:0] OUT_REG;
 reg OUT_wait;
