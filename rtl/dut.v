@@ -46,13 +46,14 @@ module MyDesign (
 reg [3:0] accum_counter;                  // must be reset
 reg accumulate;                           // must be reset
 reg busy;                                 // must be reset
+reg read_input;                           // must be reset
 reg [5:0] N_1;  // N shifted by 1         // must be reset
 reg [2:0] read_counter;                   // must be reset
 reg [5:0] row_counter, col_counter;       // must be reset
 
-reg [15:0][127:0] input_flops;            // 4 x 4 x 8 flops
-reg [8:0][7:0] kernel_flops;              // (3 x 3) x 8 flops
-signed reg [3:0][19:0] mul_accum_flops;   // 4 x 20 flops
+reg [7:0] input_flops [15:0];            // 4 x 4 x 8 flops
+reg [7:0] kernel_flops [8:0];              // (3 x 3) x 8 flops
+reg signed [19:0] mul_accum_flops [3:0];   // 4 x 20 flops
 
 reg [7:0] output_flops;
 reg output_wait;                          // must be reset
@@ -66,38 +67,47 @@ reg [11:0] output_sram_pointer, frame_pointer;           // must be reset
 wire accum_done;
 wire new_row, not_new_row, row_return, col_return;
 
-wire frame_offset[2:0][5:0];
+wire [5:0] frame_offset [2:0];
 wire frame_offset_1;
 
-signed wire [3:0][7:0] input_stride;
-signed wire [7:0] kernel_stride;
-signed wire [3:0][7:0] conv_stride;
+wire signed [7:0] input_stride [3:0];
+wire signed [7:0] kernel_stride;
+wire signed [7:0] conv_stride [3:0];
 
-signed wire [3:0][19:0] pool_in;
-signed wire [1:0][19:0] pool_mid;
-signed wire [19:0] pool_out;
+wire signed [19:0] pool_in [3:0];
+wire signed [19:0] pool_mid [1:0];
+wire signed [19:0] pool_out;
 
-signed wire [7:0] ReLU_mid, ReLU_out;
+wire signed [7:0] ReLU_mid, ReLU_out;
 
 
 //---------------------------------------------------------------------------
 // State Parameters
 
+integer i;
+
+always@(*)
+begin
+  dut_busy = busy;
+
+  input_sram_write_enable = 0;
+  weights_sram_write_enable = 0;
+
+  weights_sram_read_address = read_counter;
+  output_sram_write_addresss = output_sram_pointer;
+
+  input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2] + frame_offset_1;
+end
 
 assign soft_reset = !reset_b || dut_run;
 
-assign dut_busy = busy;
 
 // memory handling
-assign input_sram_write_enable = 0;
-assign weights_sram_write_enable = 0;
 
-assign weights_sram_read_address = read_counter;
-assign output_sram_write_addresss = output_sram_pointer;
 
-assign wait_accum = accumulate && (new_row || not_new_row) 
-assign col_return = (row_counter == (N_1 - 2)) && (row_counter == (N_1 - 2)) && (read_counter == 4)
-assign row_return = (row_counter == (N_1 - 2)) && (read_counter == 4)
+assign wait_accum = accumulate && (new_row || not_new_row);
+assign col_return = (row_counter == (N_1 - 2)) && (row_counter == (N_1 - 2)) && (read_counter == 4);
+assign row_return = (row_counter == (N_1 - 2)) && (read_counter == 4);
 assign new_row = (row_counter == 0) && (read_counter == 8);
 assign not_new_row = (row_counter != 0) && (read_counter == 4);
 assign new_row_accum = (row_counter == 0) && (read_counter >= 3);
@@ -170,7 +180,7 @@ begin
     read_input <= 1;
     read_counter <= 0;
     row_counter <= 0;
-    col_counter <= col_counter
+    col_counter <= col_counter;
     busy <= 1;
     N_1 <= N_1;
     accumulate <= 0;
@@ -227,7 +237,7 @@ begin
     row_counter <= row_counter;
     col_counter <= col_counter;
     busy <= 1;
-    N_1N <= N_1;
+    N_1 <= N_1;
     accumulate <= 0;
   end
 
@@ -235,17 +245,19 @@ begin
   else accum_counter <= 0;
 end
 
+
+// calculate input read address
 assign frame_offset[0] = ((row_counter == 0) ? (read_counter > 1) : (read_counter > 0)) ? N_1 : 0;
 assign frame_offset[1] = ((row_counter == 0) ? (read_counter > 3) : (read_counter > 1)) ? N_1 : 0;
 assign frame_offset[2] = ((row_counter == 0) ? (read_counter > 5) : (read_counter > 2)) ? N_1 : 0;
 assign frame_offset_1 = ((row_counter != 0) || read_counter[1]) ? 1 : 0;
-assign input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2]; + frame_offset_1;
+
 
 // input and kernel flop management
 always@(posedge clk)
 begin
-  kernel_flops = kernel_flops;
-  input_flops = input_flops;
+  for (i = 0; i < 9; i = i + 1) kernel_flops[i] = kernel_flops[i];
+  for (i = 0; i < 16; i = i + 1) input_flops[i] = input_flops[i];
   if (read_input)
   begin
     // read kernel
@@ -328,7 +340,7 @@ assign ReLU_out = (pool_out > 8'sd127) ? 8'sd127 : pool_out;
 // Capture and Write Output
 always@(posedge clk)
 begin
-  casex({soft_reset, accum_done, /* last val */, output_wait})
+  casex({soft_reset, accum_done, col_return, output_wait})
 		4'b1xxx:
 		begin
       output_sram_write_data <= 0;

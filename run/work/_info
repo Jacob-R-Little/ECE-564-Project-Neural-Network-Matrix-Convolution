@@ -1,0 +1,93 @@
+m255
+K4
+z2
+!s99 nomlopt
+!s11f vlog 2021.2 2021.04, Apr 14 2021
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/run
+T_opt
+!s110 1668651934
+VbOG>dZX2=M9GMbZd0IM4i1
+04 6 4 work tb_top fast 0
+=1-008cfa039ed5-63759b9e-2202-1526
+!s124 OEM100
+o-quiet -auto_acc_if_foreign -work work +acc
+Z1 tCvgOpt 0
+n@_opt
+OE;O;2021.2;73
+vMyDesign
+Z2 !s110 1668651895
+!i10b 1
+!s100 I05OBgmg=_JWdk?nPHbB_2
+IO@J2zG:EF<3ZhD_Ef0lMb3
+R0
+w1668651889
+8../rtl/dut.v
+F../rtl/dut.v
+!i122 0
+L0 1 387
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+Z4 OE;L;2021.2;73
+r1
+!s85 0
+31
+Z5 !s108 1668651895.000000
+Z6 !s107 ../testbench/sram.sv|../testbench/testbench.sv|../rtl/dut.v|
+Z7 !s90 ../rtl/dut.v|../testbench/testbench.sv|
+!i113 0
+Z8 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R1
+n@my@design
+vsram
+Z9 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+R2
+!i10b 1
+!s100 nkaXOmI6C99c=We?bHdcM1
+ITFCfhg3Q0VCcLKSDBH=z10
+S1
+R0
+Z10 w1668471905
+8../testbench/sram.sv
+F../testbench/sram.sv
+!i122 0
+L0 4 91
+R3
+R4
+r1
+!s85 0
+31
+R5
+R6
+R7
+!i113 0
+R8
+R1
+vtb_top
+R9
+R2
+!i10b 1
+!s100 clDW57WzAg=NMRlOCK9H^3
+I2nFM;OOWa]NCl4NJcTKch2
+S1
+R0
+R10
+8../testbench/testbench.sv
+F../testbench/testbench.sv
+!i122 0
+L0 2 351
+R3
+R4
+r1
+!s85 0
+31
+R5
+R6
+R7
+!i113 0
+R8
+R1

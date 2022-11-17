@@ -1,0 +1,44 @@
+# //  ModelSim SE 2021.2 Apr 14 2021 Linux 3.10.0-1160.80.1.el7.x86_64
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# vsim -voptargs="+acc" tb_top "+CLASS=564" "+TIMEOUT=1000000" "+ROUNDS=2" 
+# Start time: 21:25:33 on Nov 16,2022
+# ** Note: (vsim-3812) Design is being optimized...
+# Loading sv_std.std
+# Loading work.tb_top(fast)
+# Loading work.sram(fast)
+# Loading work.sram(fast__1)
+# Loading work.sram(fast__2)
+# Loading work.sram(fast__3)
+# Loading work.MyDesign(fast)
+do /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/run/wave.do
+run -all
+# +CLASS+564
+# +RUN_TYPE+extra
+# -------------------------------start_simulation-------------------------------
+# 
+# INFO::tb_top.input_mem.loadInitFile::readmem : ../564/input_0/input_sram_564.dat 
+# INFO::tb_top.weight_mem.loadInitFile::readmem : ../564/input_0/weight_sram_564.dat 
+# -------------------------------Round 0 start-------------------------------
+# 
+# ---------------------------------------------------------------------------------
+# 
+# Timeout after 100000 cycles
+# ---------------------------------------------------------------------------------
+# 
+# ** Note: $finish    : ../testbench/testbench.sv(280)
+#    Time: 1000005 ns  Iteration: 1  Instance: /tb_top
+# 1
+# Break in Module tb_top at ../testbench/testbench.sv line 280
+# End time: 21:35:40 on Nov 16,2022, Elapsed time: 0:10:07
+# Errors: 0, Warnings: 0
