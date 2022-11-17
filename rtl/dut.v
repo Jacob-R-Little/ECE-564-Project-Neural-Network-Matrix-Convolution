@@ -43,345 +43,275 @@ module MyDesign (
 //---------------------------------------------------------------------------
 // Explicitly Declared Flops
 
-reg [3:0] accum_counter;                  // must be reset
-reg accumulate;                           // must be reset
-reg busy;                                 // must be reset
-reg read_input;                           // must be reset
-reg [5:0] N_1;  // N shifted by 1         // must be reset
-reg [2:0] read_counter;                   // must be reset
-reg [5:0] row_counter, col_counter;       // must be reset
+reg [3:0] state;
 
-reg [7:0] input_flops [15:0];            // 4 x 4 x 8 flops
-reg [7:0] kernel_flops [8:0];              // (3 x 3) x 8 flops
-reg signed [19:0] mul_accum_flops [3:0];   // 4 x 20 flops
+reg N_1;  // N shifted by 1
 
-reg [7:0] output_flops;
-reg output_wait;                          // must be reset
+reg [11:0] frame_pointer;
 
-reg [11:0] output_sram_pointer, frame_pointer;           // must be reset
+reg [2:0] read_count;
+reg [5:0] row;
+reg [5:0] col;
 
+reg signed [7:0] IN_REG [15:0];
+reg signed [7:0] K_REG [8:0];
+
+reg signed [19:0] MAC [3:0];
+reg MAC_count;
+
+reg signed [7:0] OUT_REG;
+reg OUT_wait;
 
 //---------------------------------------------------------------------------
 // Nets and Registers
 
-wire accum_done;
-wire new_row, not_new_row, row_return, col_return;
+reg [3:0] next_state;
 
 wire [5:0] frame_offset [2:0];
 wire frame_offset_1;
 
-wire signed [7:0] input_stride [3:0];
-wire signed [7:0] kernel_stride;
-wire signed [7:0] conv_stride [3:0];
+reg [7:0] IN_net [15:0];
+reg [7:0] K_net [8:0];
 
-wire signed [19:0] pool_in [3:0];
-wire signed [19:0] pool_mid [1:0];
-wire signed [19:0] pool_out;
+wire signed [15:0] mult [3:0];
+
+wire signed [7:0] pool_mid [1:0];
+wire signed pool_out;
 
 wire signed [7:0] ReLU_mid, ReLU_out;
 
+//---------------------------------------------------------------------------
+// For Loop Iterable
+
+integer i;
 
 //---------------------------------------------------------------------------
 // State Parameters
 
-integer i;
+parameter
+		S_reset = 4'd0,
+    S_run = 4'd1,
+    S_read_K = 4'd2,
+    S_update_FP = 4'd3,
+    S_read_IN = 4'd4,
+    S_update_pos = 4'd5,
+    S_MAC = 4'd6,
+    S_OUT = 4'd7;
+
+always@(posedge clk)	// synchronous reset clock
+begin
+	if (!reset_b) state <= S_reset;	// reset to state S0
+	else state <= next_state;	// update state if no reset
+
+  if ((state == S_reset) || (state == S_run)) dut_busy <= 0;
+  else dut_busy <= 1;
+end
 
 always@(*)
 begin
-  dut_busy = busy;
+  casex(state)
+    S_reset:
+    begin
+      next_state = S_run;
+    end
+    S_run:
+    begin
+      if (dut_run) next_state = S_read_K;
+      else next_state = S_run;
+    end
+    S_read_K:
+    begin
+      if (read_count == 4) next_state = S_update_FP;
+      else next_state = S_read_K;
+    end
+    S_update_FP:
+    begin
+      next_state = S_read_IN;
+    end
+    S_read_IN:
+    begin
+      if (read_count == 7) next_state = S_update_pos;
+      else next_state = S_read_IN;
+    end
+    S_update_pos:
+    begin
+      next_state = S_MAC;
+    end
+    S_MAC:
+    begin
+      if (MAC_count == 8) next_state = S_OUT;
+      else next_state = S_MAC;
+    end
+    S_OUT:
+    begin
+      if ((row == (N_1 - 2)) && (col == (N_1 - 2))) next_state = S_run;
+      next_state = S_update_FP;
+    end
+  endcase
+end
 
+// calculate input read address
+assign frame_offset[0] = (read_count > 1) ? N_1 : 0;
+assign frame_offset[1] = (read_count > 3) ? N_1 : 0;
+assign frame_offset[2] = (read_count > 5) ? N_1 : 0;
+assign frame_offset_1 = (read_count[1]) ? 1 : 0;
+
+always@(*)
+begin
   input_sram_write_enable = 0;
   weights_sram_write_enable = 0;
+  if (state == S_OUT) output_sram_write_enable = 1;
+  else output_sram_write_enable = 0;
 
-  weights_sram_read_address = read_counter;
-  output_sram_write_addresss = output_sram_pointer;
-
+  weights_sram_read_address = read_count;
   input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2] + frame_offset_1;
 end
 
-assign soft_reset = !reset_b || dut_run;
+// input and kernel flop management
+always@(*)
+begin
+  if (state == S_read_K)
+  begin
+    if (read_count < 4)
+    begin
+      K_net[read_count << 1] = weights_sram_read_data[15:8];
+      K_net[(read_count << 1) + 1] = weights_sram_read_data[7:0];
+    end
+    else if (read_count == 4)
+    begin
+      K_net[read_count << 1] = weights_sram_read_data[15:8];
+    end    
+  end
 
-
-// memory handling
-
-
-assign wait_accum = accumulate && (new_row || not_new_row);
-assign col_return = (row_counter == (N_1 - 2)) && (row_counter == (N_1 - 2)) && (read_counter == 4);
-assign row_return = (row_counter == (N_1 - 2)) && (read_counter == 4);
-assign new_row = (row_counter == 0) && (read_counter == 8);
-assign not_new_row = (row_counter != 0) && (read_counter == 4);
-assign new_row_accum = (row_counter == 0) && (read_counter >= 3);
-assign not_new_row_accum = (row_counter != 0) && (read_counter >= 2);
-
-
+  if (state == S_read_IN)
+  begin
+      IN_net[read_count << 1] = input_sram_read_data[15:8];
+      IN_net[(read_count << 1) + 1] = input_sram_read_data[7:0];
+  end
+end
 
 
 always@(posedge clk)
 begin
-  if (!reset_b)
+
+  if (state == S_read_K) N_1 <= input_sram_read_data >> 1;
+  else N_1 <= N_1;
+
+  if ((state == S_reset) || (state == S_run)) frame_pointer <= 0;
+  else if (state == S_update_FP)
   begin
-    frame_pointer <= 0;
-    read_input <= 0;
-    read_counter <= 0;
-    row_counter <= 0;
-    col_counter <= 0;
-    busy <= 0;
-    N_1 <= 0;
-    accumulate <= 0;
+    if ((row == (N_1 - 2)) && (col == (N_1 - 2))) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
+    if (col == (N_1 - 2)) frame_pointer <= frame_pointer + N_1 + 2;
+    else frame_pointer <= frame_pointer + 1;
   end
-  else if (dut_run) 
+  else frame_pointer <= frame_pointer;
+
+  if ((state == S_read_K) || (state == S_read_IN))
+    read_count <= read_count + 1;
+  else read_count <= 0;
+  
+  if ((state == S_reset) || (state == S_run))
   begin
-    frame_pointer <= 1;
-    read_input <= 1;
-    read_counter <= 0;
-    row_counter <= 0;
-    col_counter <= 0;
-    busy <= 1;
-    N_1 <= input_sram_read_data[6:0] >> 1;
-    accumulate <= 0;
+    row <= 0;
+    col <= 0;
   end
-  else if (!busy)
+  if (state == S_update_pos)
   begin
-    frame_pointer <= 0;
-    read_input <= 0;
-    read_counter <= 0;
-    row_counter <= 0;
-    col_counter <= 0;
-    busy <= 0;
-    N_1 <= 0;
-    accumulate <= 0;
-  end
-  else if (wait_accum)
-  begin
-    frame_pointer <= frame_pointer;
-    read_input <= 0;
-    read_counter <= read_counter;
-    row_counter <= row_counter;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    if (accum_done) accumulate <= 0;
-    else accumulate <= 1; 
-  end
-  else if (col_return)
-  begin
-    frame_pointer <= frame_pointer + 1;
-    read_input <= 1;
-    read_counter <= 0;
-    row_counter <= 0;
-    col_counter <= 0;
-    if (input_sram_read_data[15:0] == 16'hFF) busy <= 0;
-    N_1 <= input_sram_read_data[6:0];
-    accumulate <= 0;
-  end
-  else if (row_return)
-  begin
-    frame_pointer <= frame_pointer + 2;
-    read_input <= 1;
-    read_counter <= 0;
-    row_counter <= 0;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 0;
-  end
-  else if (new_row)
-  begin
-    frame_pointer <= frame_pointer + 1;
-    read_input <= 1;
-    read_counter <= 0;
-    row_counter <= row_counter + 1;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 0;
-  end
-  else if (not_new_row)
-  begin
-    frame_pointer <= frame_pointer + 1;
-    read_input <= 1;
-    read_counter <= 0;
-    row_counter <= row_counter + 1;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 0;
-  end
-  else if (new_row_accum)
-  begin
-    frame_pointer <= frame_pointer;
-    read_input <= 1;
-    read_counter <= read_counter + 1;
-    row_counter <= row_counter;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 1;
-  end
-  else if (not_new_row_accum)
-  begin
-    frame_pointer <= frame_pointer;
-    read_input <= 1;
-    read_counter <= read_counter + 1;
-    row_counter <= row_counter;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 1;
+    if ((row == (N_1 - 2)) && (col == (N_1 - 2))) col <= 0;
+    else if (col == (N_1 - 2)) row <= row + 1;
+    else row <= row;
+
+    if (col == (N_1 - 2)) col <= 0;
+    else col <= col + 1;
   end
   else
   begin
-    frame_pointer <= frame_pointer;
-    read_input <= 1;
-    read_counter <= read_counter + 1;
-    row_counter <= row_counter;
-    col_counter <= col_counter;
-    busy <= 1;
-    N_1 <= N_1;
-    accumulate <= 0;
+    row <= row;
+    col <= col;
   end
 
-  if (accumulate) accum_counter <= accum_counter + 1;
-  else accum_counter <= 0;
+  if (state == S_read_K)
+    for (i = 0; i < 9; i = i + 1) K_REG[i] <= K_net[i];
+  else
+    for (i = 0; i < 9; i = i + 1) K_REG[i] <= K_REG[i];
+  if (state == S_read_IN)
+    for (i = 0; i < 16; i = i + 1) IN_REG[i] <= IN_net[i];
+  else
+    for (i = 0; i < 16; i = i + 1) IN_REG[i] <= IN_REG[i];
 end
 
 
-// calculate input read address
-assign frame_offset[0] = ((row_counter == 0) ? (read_counter > 1) : (read_counter > 0)) ? N_1 : 0;
-assign frame_offset[1] = ((row_counter == 0) ? (read_counter > 3) : (read_counter > 1)) ? N_1 : 0;
-assign frame_offset[2] = ((row_counter == 0) ? (read_counter > 5) : (read_counter > 2)) ? N_1 : 0;
-assign frame_offset_1 = ((row_counter != 0) || read_counter[1]) ? 1 : 0;
-
-
-// input and kernel flop management
-always@(posedge clk)
-begin
-  for (i = 0; i < 9; i = i + 1) kernel_flops[i] = kernel_flops[i];
-  for (i = 0; i < 16; i = i + 1) input_flops[i] = input_flops[i];
-  if (read_input)
-  begin
-    // read kernel
-    if (read_counter < 4)
-    begin
-      kernel_flops[read_counter << 1] = weights_sram_read_data[15:8];
-      kernel_flops[(read_counter << 1) + 1] = weights_sram_read_data[7:0];
-    end
-    else if (read_counter == 4)
-    begin
-      kernel_flops[read_counter << 1] = weights_sram_read_data[15:8];
-    end    
-    // read input
-    if (row_counter == 0)
-    begin
-      input_flops[read_counter << 1] = input_sram_read_data[15:8];
-      input_flops[(read_counter << 1) + 1] = input_sram_read_data[7:0];
-    end
-    else
-    begin
-      input_flops[(read_counter << 2)] = input_flops[(read_counter << 2) + 2];
-      input_flops[(read_counter << 2) + 1] = input_flops[(read_counter << 2) + 3];
-      input_flops[(read_counter << 2) + 2] = input_sram_read_data[15:8];
-      input_flops[(read_counter << 2) + 3] = input_sram_read_data[7:0];
-    end
-  end
-end
-
-
-assign accum_done = (accum_counter == 8);
-
-
-// muxing for multiply accumulate
-assign input_stride[0] = input_flops[accum_counter +     (accum_counter < 3) + (accum_counter < 6)];
-assign input_stride[1] = input_flops[accum_counter + 1 + (accum_counter < 3) + (accum_counter < 6)];
-assign input_stride[2] = input_flops[accum_counter + 4 + (accum_counter < 3) + (accum_counter < 6)];
-assign input_stride[3] = input_flops[accum_counter + 5 + (accum_counter < 3) + (accum_counter < 6)];
-
-assign kernel_stride = kernel_flops[accum_counter];
-
-
-// multipliers
-assign conv_stride[0] = input_stride[0] * kernel_stride;
-assign conv_stride[1] = input_stride[1] * kernel_stride;
-assign conv_stride[2] = input_stride[2] * kernel_stride;
-assign conv_stride[3] = input_stride[3] * kernel_stride;
-
+// 4 multipliers
+assign mult[0] = IN_REG[MAC_count +     (MAC_count > 2) + (MAC_count > 5)] * K_REG[MAC_count];
+assign mult[1] = IN_REG[MAC_count + 1 + (MAC_count > 2) + (MAC_count > 5)] * K_REG[MAC_count];
+assign mult[2] = IN_REG[MAC_count + 4 + (MAC_count > 2) + (MAC_count > 5)] * K_REG[MAC_count];
+assign mult[3] = IN_REG[MAC_count + 5 + (MAC_count > 2) + (MAC_count > 5)] * K_REG[MAC_count];
 
 // accumulator
 always@(posedge clk)
 begin
-  if (accumulate)
+  if (state == S_MAC)
   begin
-    mul_accum_flops[0] <= mul_accum_flops[0] + conv_stride[0];
-    mul_accum_flops[1] <= mul_accum_flops[1] + conv_stride[1];
-    mul_accum_flops[2] <= mul_accum_flops[2] + conv_stride[2];
-    mul_accum_flops[3] <= mul_accum_flops[3] + conv_stride[3];
+    MAC_count = MAC_count + 1;
+    for (i = 0; i < 4; i = i + 1) MAC[i] <= MAC[i] + mult[i];
   end
   else
   begin
-    mul_accum_flops[0] <= 0;
-    mul_accum_flops[1] <= 0;
-    mul_accum_flops[2] <= 0;
-    mul_accum_flops[3] <= 0;
+    MAC_count = 0;
+    for (i = 0; i < 4; i = i + 1) MAC[i] <= 0;
   end
 end
 
-
 // pooling
-assign pool_mid[0] = (mul_accum_flops[0] > mul_accum_flops[1]) ? mul_accum_flops[0] : mul_accum_flops[1];
-assign pool_mid[1] = (mul_accum_flops[2] > mul_accum_flops[3]) ? mul_accum_flops[2] : mul_accum_flops[3];
+assign pool_mid[0] = (MAC[0] > MAC[1]) ? MAC[0] : MAC[1];
+assign pool_mid[1] = (MAC[2] > MAC[3]) ? MAC[2] : MAC[3];
 assign pool_out = (pool_mid[0] > pool_mid[1]) ? pool_mid[0] : pool_mid[1];
-
 
 // ReLU
 assign ReLU_mid = (pool_out < 8'sd0) ? 8'sd0 : pool_out; 
-assign ReLU_out = (pool_out > 8'sd127) ? 8'sd127 : pool_out;
+assign ReLU_out = (ReLU_mid > 8'sd127) ? 8'sd127 : ReLU_mid;
 
 
 // Capture and Write Output
 always@(posedge clk)
 begin
-  casex({soft_reset, accum_done, col_return, output_wait})
-		4'b1xxx:
-		begin
-      output_sram_write_data <= 0;
-      output_sram_write_enable <= 0;
-      output_sram_pointer <= 0;
-      output_flops <= 0;
-      output_wait <= 0;
-		end
-    4'b011x:
-		begin
-      output_sram_write_data <= {ReLU_out, 8'd0};
-      output_sram_write_enable <= 1;
-      output_sram_pointer <= output_sram_pointer + 1;
-      output_flops <= output_flops;
-      output_wait <= 0;
-		end
-    4'b0101:
+  if ((state == S_reset) || (state == S_run))
+  begin
+    output_sram_write_data <= 0;
+    output_sram_write_addresss <= 0;
+    OUT_REG <= 0;
+    OUT_wait <= 0;
+  end
+  else if (state == S_OUT)
+  begin
+    if (OUT_wait)
     begin
-      output_sram_write_data <= {output_flops, ReLU_out};
-      output_sram_write_enable <= 1;
-      output_sram_pointer <= output_sram_pointer + 1;
-      output_flops <= output_flops;
-      output_wait <= 0;
-		end
-		4'b0100:
-		begin
+      output_sram_write_data <= {OUT_REG, ReLU_out};
+      OUT_REG <= 0;
+      OUT_wait <= 0;
+    end
+    else if ((row == (N_1 - 2)) && (col == (N_1 - 2)))
+    begin
+      output_sram_write_data <= {ReLU_out, 8'd0};
+      OUT_REG <= 0;
+      OUT_wait <= 0;
+    end
+    else
+    begin
       output_sram_write_data <= output_sram_write_data;
-      output_sram_write_enable <= 0;
-      output_sram_pointer <= output_sram_pointer;
-      output_flops <= ReLU_out;
-      output_wait <= 1;
-		end
-		default:
-		begin
-      output_sram_write_data <= output_sram_write_data;
-      output_sram_write_enable <= 0;
-      output_sram_pointer <= output_sram_pointer;
-      output_flops <= output_flops;
-      output_wait <= output_wait;
-		end
-	endcase
+      OUT_REG <= ReLU_out;
+      OUT_wait <= 1;
+    end
+    if ((row == 0) && (col == 0)) output_sram_write_addresss <= output_sram_write_addresss + 1;
+      
+  end
+  else
+  begin
+    output_sram_write_data <= output_sram_write_data;
+    output_sram_write_addresss <= output_sram_write_addresss;
+    OUT_REG <= OUT_REG;
+    OUT_wait <= OUT_wait;
+  end
 end
 
 endmodule
