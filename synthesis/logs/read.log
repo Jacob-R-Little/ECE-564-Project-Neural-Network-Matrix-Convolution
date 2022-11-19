@@ -1,0 +1,84 @@
+#------------------------------------------------------------
+#
+# Basic Synthesis Script (TCL format)
+#                                  
+# Revision History                
+#   1/15/03  : Author Shane T. Gehring - from class example
+#   2/09/07  : Author Zhengtao Yu      - from class example
+#   12/14/07 : Author Ravi Jenkal      - updated to 180 nm & tcl
+#
+#------------------------------------------------------------
+#---------------------------------------------------------
+# Read in Verilog file and map (synthesize) onto a generic
+# library.
+# MAKE SURE THAT YOU CORRECT ALL WARNINGS THAT APPEAR
+# during the execution of the read command are fixed 
+# or understood to have no impact.
+# ALSO CHECK your latch/flip-flop list for unintended 
+# latches                                            
+#---------------------------------------------------------
+read_verilog $::env(RTL_FILES)
+Loading db file '/afs/eos.ncsu.edu/lockers/research/ece/wdavis/tech/nangate/NangateOpenCellLibrary_PDKv1_2_v2008_10/liberty/520/NangateOpenCellLibrary_PDKv1_2_v2008_10_slow_nldm.db'
+Loading db file '/mnt/apps/public/COE/synopsys_apps/syn/S-2021.06-SP3/libraries/syn/dw_foundation.sldb'
+Loading db file '/mnt/apps/public/COE/synopsys_apps/syn/S-2021.06-SP3/libraries/syn/gtech.db'
+Loading db file '/mnt/apps/public/COE/synopsys_apps/syn/S-2021.06-SP3/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary_PDKv1_2_v2008_10_slow_nldm'
+  Loading link library 'gtech'
+Loading verilog file '/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v'
+Detecting input file type automatically (-rtl or -netlist).
+Reading with Presto HDL Compiler (equivalent to -rtl option).
+Running PRESTO HDLC
+Compiling source file /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:167: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:168: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:170: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:191: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:192: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:198: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:199: unsigned to signed assignment occurs. (VER-318)
+Warning:  /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v:230: signed to unsigned assignment occurs. (VER-318)
+Warning: Could not open default SVF file /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/synthesis/svf/default.svf for writing.
+
+Statistics for case statements in always block at line 102 in file
+	'/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v'
+===============================================
+|           Line           |  full/ parallel  |
+===============================================
+|           106            |    auto/auto     |
+===============================================
+
+Inferred memory devices in process
+	in routine MyDesign line 146 in file
+		'/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v'.
+==========================================================================================
+|         Register Name          |   Type    | Width | Bus | MB | AR | AS | SR | SS | ST |
+==========================================================================================
+|            col_reg             | Flip-flop |   6   |  Y  | N  | N  | N  | N  | N  | N  |
+| output_sram_write_addresss_reg | Flip-flop |  12   |  Y  | N  | N  | N  | N  | N  | N  |
+|           K_REG_reg            | Flip-flop |  72   |  Y  | N  | N  | N  | N  | N  | N  |
+|           IN_REG_reg           | Flip-flop |  128  |  Y  | N  | N  | N  | N  | N  | N  |
+|       frame_pointer_reg        | Flip-flop |  12   |  Y  | N  | N  | N  | N  | N  | N  |
+|          counter_reg           | Flip-flop |   4   |  Y  | N  | N  | N  | N  | N  | N  |
+|           state_reg            | Flip-flop |   3   |  Y  | N  | N  | N  | N  | N  | N  |
+|   output_sram_write_data_reg   | Flip-flop |  16   |  Y  | N  | N  | N  | N  | N  | N  |
+|            row_reg             | Flip-flop |   6   |  Y  | N  | N  | N  | N  | N  | N  |
+|          OUT_REG_reg           | Flip-flop |   8   |  Y  | N  | N  | N  | N  | N  | N  |
+|            MAC_reg             | Flip-flop |  80   |  Y  | N  | N  | N  | N  | N  | N  |
+|          OUT_wait_reg          | Flip-flop |   1   |  N  | N  | N  | N  | N  | N  | N  |
+|          dut_busy_reg          | Flip-flop |   1   |  N  | N  | N  | N  | N  | N  | N  |
+|            N_1_reg             | Flip-flop |   6   |  Y  | N  | N  | N  | N  | N  | N  |
+==========================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|   MyDesign/266   |   16   |    8    |      4       |
+|   MyDesign/267   |   16   |    8    |      4       |
+|   MyDesign/268   |   16   |    8    |      4       |
+|   MyDesign/269   |   16   |    8    |      4       |
+======================================================
+Presto compilation completed successfully.
+Current design is now '/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/MyDesign.db:MyDesign'
+Loaded 1 design.
+Current design is 'MyDesign'.
+MyDesign
