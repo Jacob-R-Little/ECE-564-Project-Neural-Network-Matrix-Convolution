@@ -178,8 +178,8 @@ begin
 	else if (state == S_get_N && counter == 0) frame_pointer <= frame_pointer + 1;
   else if (state == S_update_FP)
 	begin
-    if ((frame_pointer > 1) && (row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
-    else if ((frame_pointer > 1) && (col == 0)) frame_pointer <= frame_pointer + N_1 + 2;
+    if ((row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
+    else if (col == 0) frame_pointer <= frame_pointer + N_1 + 2;
     else frame_pointer <= frame_pointer + 1;
 	end
 
