@@ -22,6 +22,11 @@ R0
 R0
 R0
 R0
+R0
+R0
+R0
+R0
+R0
 !s11f vlog 2021.2 2021.04, Apr 14 2021
 13
 !s112 1.1
@@ -31,32 +36,32 @@ R0
 cModel Technology
 Z1 d/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/run
 T_opt
-!s110 1668831592
-V3j8dM[cd4`1e3ZHIZoC^m3
+!s110 1668835023
+VhSWO@RB3A[_>[IdFKFNG>0
 04 6 4 work tb_top fast 0
-=23-141877559b83-63785967-5b0c5-1a83
+=29-141877559b83-637866cf-11f0e-1a83
 !s124 OEM100
 o-quiet -auto_acc_if_foreign -work work +acc
 Z2 tCvgOpt 0
 n@_opt
 OE;O;2021.2;73
 vMyDesign
-!s110 1668831590
+!s110 1668835022
 !i10b 1
-!s100 QccJdGd27PMU9R<bY6R=c0
-IYl:MCU>;6EKG2IQhmjZ7H3
+!s100 e;1:XFgCiz@lkUj@^_RWR1
+IC`z[K0g`T2kl27Hb[]Ll91
 R1
-w1668831587
+w1668835017
 8/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v
 F/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v
-!i122 22
-L0 1 270
+!i122 28
+L0 1 271
 Z3 VDg1SIo80bB@j0V0VzS_@n1
 Z4 OE;L;2021.2;73
 r1
 !s85 0
 31
-!s108 1668831590.000000
+!s108 1668835021.000000
 !s107 /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v|
 !s90 -reportprogress|300|-work|work|/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v|
 !i113 0

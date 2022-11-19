@@ -124,15 +124,16 @@ begin
 			if (counter == 8) next_state = S_OUT;
 			else next_state = S_MAC;
     S_OUT:
-			if ((row == (N_1 - 2)) && (col == (N_1 - 2))) next_state = S_get_N;
+			if ((row == 0) && (col == 0)) next_state = S_get_N;
       else next_state = S_update_FP;
   endcase
 
 	// Write Enable Assertions
   input_sram_write_enable = 0;
   weights_sram_write_enable = 0;
-  if (state == S_OUT) output_sram_write_enable = 1;
-  else output_sram_write_enable = 0;
+  output_sram_write_enable = 1;
+  // if (state == S_OUT) output_sram_write_enable = 1;
+  // else output_sram_write_enable = 0;
 
 	// Read Address Assertions
   weights_sram_read_address = counter;
@@ -179,8 +180,8 @@ begin
   else if (state == S_update_FP)
 	begin
 		// if ((row == 0) && (col == 0)) 
-    if ((row == (N_1 - 2)) && (col == (N_1 - 2))) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
-    else if (col == (N_1 - 2)) frame_pointer <= frame_pointer + N_1 + 2;
+    if ((frame_pointer > 1) && (row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
+    else if ((frame_pointer > 1) && (col == 0)) frame_pointer <= frame_pointer + N_1 + 2;
     else frame_pointer <= frame_pointer + 1;
 	end
 
@@ -217,7 +218,7 @@ begin
 	if (state == S_reset)
   begin
     output_sram_write_data <= 0;
-    output_sram_write_addresss <= 0;
+    output_sram_write_addresss <= -1;
     OUT_REG <= 0;
     OUT_wait <= 0;
   end
@@ -228,12 +229,14 @@ begin
       output_sram_write_data <= {OUT_REG, ReLU_out};
       OUT_REG <= 0;
       OUT_wait <= 0;
+      output_sram_write_addresss <= output_sram_write_addresss + 1;
     end
-    else if ((row == (N_1 - 2)) && (col == (N_1 - 2)))
+    else if ((row == 0) && (col == 0))
     begin
       output_sram_write_data <= {ReLU_out, 8'd0};
       OUT_REG <= 0;
       OUT_wait <= 0;
+      output_sram_write_addresss <= output_sram_write_addresss + 1;
     end
     else
     begin
@@ -241,8 +244,6 @@ begin
       OUT_REG <= ReLU_out;
       OUT_wait <= 1;
     end
-    // if ((row == 0) && (col == 0)) output_sram_write_addresss <= output_sram_write_addresss;
-    if (OUT_wait) output_sram_write_addresss <= output_sram_write_addresss + 1;
   end
 end
 
