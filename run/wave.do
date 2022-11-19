@@ -5,13 +5,7 @@ add wave -noupdate /tb_top/dut/dut_busy
 add wave -noupdate /tb_top/dut/reset_b
 add wave -noupdate /tb_top/dut/clk
 add wave -noupdate /tb_top/dut/input_sram_write_enable
-add wave -noupdate /tb_top/dut/input_sram_write_addresss
-add wave -noupdate /tb_top/dut/input_sram_write_data
-add wave -noupdate /tb_top/dut/output_sram_read_address
-add wave -noupdate /tb_top/dut/output_sram_read_data
 add wave -noupdate /tb_top/dut/weights_sram_write_enable
-add wave -noupdate /tb_top/dut/weights_sram_write_addresss
-add wave -noupdate /tb_top/dut/weights_sram_write_data
 add wave -noupdate /tb_top/dut/weights_sram_read_address
 add wave -noupdate /tb_top/dut/weights_sram_read_data
 add wave -noupdate /tb_top/dut/i
@@ -21,7 +15,7 @@ add wave -noupdate -color Cyan /tb_top/dut/counter
 add wave -noupdate /tb_top/dut/N_1
 add wave -noupdate /tb_top/dut/row
 add wave -noupdate /tb_top/dut/col
-add wave -noupdate -expand -subitemconfig {{/tb_top/dut/K_REG[0]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[1]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[2]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[3]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[4]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[5]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[6]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[7]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[8]} {-color {Cornflower Blue} -height 16}} /tb_top/dut/K_REG
+add wave -noupdate /tb_top/dut/K_REG
 add wave -noupdate /tb_top/dut/frame_offset
 add wave -noupdate /tb_top/dut/frame_offset_1
 add wave -noupdate /tb_top/dut/frame_pointer
@@ -40,7 +34,7 @@ add wave -noupdate /tb_top/dut/output_sram_write_enable
 add wave -noupdate /tb_top/dut/output_sram_write_addresss
 add wave -noupdate /tb_top/dut/output_sram_write_data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {695 ns} 0}
+WaveRestoreCursors {{Cursor 1} {10005 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 317
 configure wave -valuecolwidth 125
@@ -56,4 +50,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1383 ns} {1567 ns}
+WaveRestoreZoom {11383 ns} {11567 ns}

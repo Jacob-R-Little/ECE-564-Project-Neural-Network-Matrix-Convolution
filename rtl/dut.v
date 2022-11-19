@@ -43,7 +43,7 @@ module MyDesign (
 //---------------------------------------------------------------------------
 // Explicitly Declared Flops
 
-reg [3:0] state;
+reg [2:0] state;
 
 reg [5:0] N_1;  // N shifted by 1
 
@@ -64,7 +64,7 @@ reg OUT_wait;
 //---------------------------------------------------------------------------
 // Nets and Registers
 
-reg [3:0] next_state;
+reg [2:0] next_state;
 
 wire [5:0] frame_offset [0:2];
 wire frame_offset_1;
@@ -89,14 +89,14 @@ integer i;
 // State Parameters
 
 parameter
-	S_reset = 4'd0,
-	S_get_N = 4'd1,
-	S_read_K = 4'd2,
-	S_update_FP = 4'd3,
-	S_read_IN = 4'd4,
-	S_update_pos = 4'd5,
-	S_MAC = 4'd6,
-	S_OUT = 4'd7;
+	S_reset = 3'd0,
+  S_read_K = 3'd1,
+	S_get_N = 3'd2,
+	S_read_IN = 3'd3,
+	S_update_pos = 3'd4,
+	S_MAC = 3'd5,
+	S_OUT = 3'd6,
+  S_update_FP = 3'd7;
 
 
 always@(*)
@@ -105,16 +105,15 @@ begin
 	// Finite State Machine
   casex(state)
     S_reset:
-			if (dut_run) next_state = S_get_N;
+			if (dut_run) next_state = S_read_K;
       else next_state = S_reset;
-		S_get_N:
-			if (input_sram_read_data == 16'hFFFF) next_state = S_reset;
-			else next_state = S_read_K;
     S_read_K:
-			if (counter == 5) next_state = S_update_FP;
+			if (counter == 5) next_state = S_get_N;
       else next_state = S_read_K;
-    S_update_FP:
-			next_state = S_read_IN;
+		S_get_N:
+      if (counter < 1) next_state = S_get_N;
+			else if (input_sram_read_data == 16'hFFFF) next_state = S_reset;
+			else next_state = S_read_IN;
     S_read_IN:
 			if (counter == 8) next_state = S_update_pos;
 			else next_state = S_read_IN;
@@ -124,8 +123,10 @@ begin
 			if (counter == 8) next_state = S_OUT;
 			else next_state = S_MAC;
     S_OUT:
-			if ((row == 0) && (col == 0)) next_state = S_get_N;
-      else next_state = S_update_FP;
+      next_state = S_update_FP;
+    S_update_FP:
+      if ((row == 0) && (col == 0)) next_state = S_get_N;
+			else next_state = S_read_IN;
   endcase
 
 	// Write Enable Assertions
@@ -138,7 +139,7 @@ begin
 	// Read Address Assertions
   weights_sram_read_address = counter;
   if (state == S_reset) input_sram_read_address = 0;
-  else if (state == S_get_N) input_sram_read_address = frame_pointer;
+  else if (next_state == S_get_N) input_sram_read_address = frame_pointer;
   else input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2] + frame_offset_1;
 
 end
@@ -176,7 +177,7 @@ begin
 
 	// frame pointer
   if (state == S_reset) frame_pointer <= 0;
-	// else if (state == S_get_N) frame_pointer <= frame_pointer + 1;
+	else if (state == S_get_N && counter == 0) frame_pointer <= frame_pointer + 1;
   else if (state == S_update_FP)
 	begin
 		// if ((row == 0) && (col == 0)) 
