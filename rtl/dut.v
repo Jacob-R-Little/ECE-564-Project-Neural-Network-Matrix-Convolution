@@ -53,10 +53,10 @@ reg [3:0] counter;
 reg [5:0] row;
 reg [5:0] col;
 
-reg signed [7:0] IN_REG [15:0];
-reg signed [7:0] K_REG [8:0];
+reg signed [7:0] IN_REG [0:15];
+reg signed [7:0] K_REG [0:8];
 
-reg signed [19:0] MAC [3:0];
+reg signed [19:0] MAC [0:3];
 
 reg signed [7:0] OUT_REG;
 reg OUT_wait;
@@ -66,15 +66,15 @@ reg OUT_wait;
 
 reg [3:0] next_state;
 
-wire [5:0] frame_offset [2:0];
+wire [5:0] frame_offset [0:2];
 wire frame_offset_1;
 
-reg [7:0] IN_net [15:0];
-reg [7:0] K_net [8:0];
+reg [7:0] IN_net [0:15];
+reg [7:0] K_net [0:8];
 
-wire signed [15:0] mult [3:0];
+wire signed [15:0] mult [0:3];
 
-wire signed [19:0] pool_mid [1:0];
+wire signed [19:0] pool_mid [0:1];
 wire signed [19:0] pool_out;
 
 wire signed [19:0] ReLU_mid;
@@ -111,12 +111,12 @@ begin
 			if (input_sram_read_data == 16'hFFFF) next_state = S_reset;
 			else next_state = S_read_K;
     S_read_K:
-			if (counter == 4) next_state = S_update_FP;
+			if (counter == 5) next_state = S_update_FP;
       else next_state = S_read_K;
     S_update_FP:
 			next_state = S_read_IN;
     S_read_IN:
-			if (counter == 7) next_state = S_update_pos;
+			if (counter == 8) next_state = S_update_pos;
 			else next_state = S_read_IN;
     S_update_pos:
 			next_state = S_MAC;
@@ -136,7 +136,10 @@ begin
 
 	// Read Address Assertions
   weights_sram_read_address = counter;
-  input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2] + frame_offset_1;
+  if (state == S_reset) input_sram_read_address = 0;
+  else if (state == S_get_N) input_sram_read_address = frame_pointer;
+  else input_sram_read_address = frame_pointer + frame_offset[0] + frame_offset[1] + frame_offset[2] + frame_offset_1;
+
 end
 
 // flop management
@@ -159,32 +162,33 @@ begin
 	if (state == S_read_K)
   begin
 
-    if (counter < 4)
+    if ((counter > 0) && (counter < 5))
     begin
-      K_REG[counter << 1] = weights_sram_read_data[15:8];
-      K_REG[(counter << 1) + 1] = weights_sram_read_data[7:0];
+      K_REG[(counter - 1) << 1] = weights_sram_read_data[15:8];
+      K_REG[((counter - 1) << 1) + 1] = weights_sram_read_data[7:0];
     end
-    else if (counter == 4) K_REG[counter << 1] = weights_sram_read_data[15:8];
+    else if (counter == 5) K_REG[(counter - 1) << 1] = weights_sram_read_data[15:8];
   end
 
+  // N >> 1
 	if (state == S_get_N) N_1 <= input_sram_read_data[6:0] >> 1;
 
 	// frame pointer
   if (state == S_reset) frame_pointer <= 0;
-	else if (state == S_get_N) frame_pointer <= frame_pointer + 1;
+	// else if (state == S_get_N) frame_pointer <= frame_pointer + 1;
   else if (state == S_update_FP)
 	begin
-		if ((row == 0) && (col == 0)) 
+		// if ((row == 0) && (col == 0)) 
     if ((row == (N_1 - 2)) && (col == (N_1 - 2))) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
     else if (col == (N_1 - 2)) frame_pointer <= frame_pointer + N_1 + 2;
     else frame_pointer <= frame_pointer + 1;
 	end
 
 	// input read
-  if (state == S_read_IN)
+  if ((state == S_read_IN) && (counter > 0))
   begin
-      IN_REG[counter << 1] = input_sram_read_data[15:8];
-      IN_REG[(counter << 1) + 1] = input_sram_read_data[7:0];
+      IN_REG[(counter - 1) << 1] = input_sram_read_data[15:8];
+      IN_REG[((counter - 1) << 1) + 1] = input_sram_read_data[7:0];
   end
   
 	// rows and columns
@@ -237,8 +241,8 @@ begin
       OUT_REG <= ReLU_out;
       OUT_wait <= 1;
     end
-    if ((row == 0) && (col == 0)) output_sram_write_addresss <= output_sram_write_addresss;
-    else output_sram_write_addresss <= output_sram_write_addresss + 1;
+    // if ((row == 0) && (col == 0)) output_sram_write_addresss <= output_sram_write_addresss;
+    if (OUT_wait) output_sram_write_addresss <= output_sram_write_addresss + 1;
   end
 end
 
@@ -246,7 +250,7 @@ end
 assign frame_offset[0] = (counter > 1) ? N_1 : 0;
 assign frame_offset[1] = (counter > 3) ? N_1 : 0;
 assign frame_offset[2] = (counter > 5) ? N_1 : 0;
-assign frame_offset_1 = (counter[1]) ? 1 : 0;
+assign frame_offset_1 = counter[0];
 
 // 4 multipliers
 assign mult[0] = IN_REG[counter +     (counter > 2) + (counter > 5)] * K_REG[counter];

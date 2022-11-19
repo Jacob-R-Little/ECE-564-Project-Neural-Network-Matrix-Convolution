@@ -1,57 +1,49 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate -height 24 /tb_top/dut/clk
-add wave -noupdate -height 24 /tb_top/dut/soft_reset
-add wave -noupdate -height 24 /tb_top/dut/reset_b
-add wave -noupdate -height 24 /tb_top/dut/dut_run
-add wave -noupdate -height 24 /tb_top/dut/dut_busy
-add wave -noupdate -height 24 /tb_top/dut/busy
-add wave -noupdate -height 24 /tb_top/dut/wait_accum
-add wave -noupdate -height 24 /tb_top/dut/col_return
-add wave -noupdate -height 24 /tb_top/dut/row_return
-add wave -noupdate -height 24 /tb_top/dut/new_row
-add wave -noupdate -height 24 /tb_top/dut/not_new_row
-add wave -noupdate -height 24 /tb_top/dut/new_row_accum
-add wave -noupdate -height 24 /tb_top/dut/not_new_row_accum
-add wave -noupdate -height 24 /tb_top/dut/read_input
-add wave -noupdate -height 24 /tb_top/dut/accumulate
-add wave -noupdate -height 24 /tb_top/dut/input_sram_write_enable
-add wave -noupdate -height 24 /tb_top/dut/input_sram_read_address
-add wave -noupdate -height 24 /tb_top/dut/input_sram_read_data
-add wave -noupdate -height 24 /tb_top/dut/weights_sram_write_enable
-add wave -noupdate -height 24 /tb_top/dut/weights_sram_read_address
-add wave -noupdate -height 24 /tb_top/dut/weights_sram_read_data
-add wave -noupdate -height 24 /tb_top/dut/N_1
-add wave -noupdate -height 24 /tb_top/dut/accum_counter
-add wave -noupdate -height 24 /tb_top/dut/read_counter
-add wave -noupdate -height 24 /tb_top/dut/row_counter
-add wave -noupdate -height 24 /tb_top/dut/col_counter
-add wave -noupdate -height 24 /tb_top/dut/output_wait
-add wave -noupdate -height 24 /tb_top/dut/accum_done
-add wave -noupdate -height 24 /tb_top/dut/frame_pointer
-add wave -noupdate -height 24 /tb_top/dut/frame_offset
-add wave -noupdate -height 24 /tb_top/dut/frame_offset_1
-add wave -noupdate -height 24 -expand /tb_top/dut/input_flops
-add wave -noupdate -height 24 -expand /tb_top/dut/kernel_flops
-add wave -noupdate -height 24 -expand /tb_top/dut/input_stride
-add wave -noupdate -height 24 /tb_top/dut/kernel_stride
-add wave -noupdate -height 24 -expand /tb_top/dut/conv_stride
-add wave -noupdate -height 24 -expand /tb_top/dut/mul_accum_flops
-add wave -noupdate -height 24 /tb_top/dut/pool_in
-add wave -noupdate -height 24 /tb_top/dut/pool_mid
-add wave -noupdate -height 24 /tb_top/dut/pool_out
-add wave -noupdate -height 24 /tb_top/dut/ReLU_mid
-add wave -noupdate -height 24 /tb_top/dut/ReLU_out
-add wave -noupdate -height 24 /tb_top/dut/output_flops
-add wave -noupdate -height 24 /tb_top/dut/output_sram_write_enable
-add wave -noupdate -height 24 /tb_top/dut/output_sram_pointer
-add wave -noupdate -height 24 /tb_top/dut/output_sram_write_addresss
-add wave -noupdate -height 24 /tb_top/dut/output_sram_write_data
+add wave -noupdate /tb_top/dut/dut_run
+add wave -noupdate /tb_top/dut/dut_busy
+add wave -noupdate /tb_top/dut/reset_b
+add wave -noupdate /tb_top/dut/clk
+add wave -noupdate /tb_top/dut/input_sram_write_enable
+add wave -noupdate /tb_top/dut/input_sram_write_addresss
+add wave -noupdate /tb_top/dut/input_sram_write_data
+add wave -noupdate /tb_top/dut/output_sram_read_address
+add wave -noupdate /tb_top/dut/output_sram_read_data
+add wave -noupdate /tb_top/dut/weights_sram_write_enable
+add wave -noupdate /tb_top/dut/weights_sram_write_addresss
+add wave -noupdate /tb_top/dut/weights_sram_write_data
+add wave -noupdate /tb_top/dut/weights_sram_read_address
+add wave -noupdate /tb_top/dut/weights_sram_read_data
+add wave -noupdate /tb_top/dut/i
+add wave -noupdate -color Gray65 -height 40 /tb_top/dut/state
+add wave -noupdate /tb_top/dut/next_state
+add wave -noupdate -color Cyan /tb_top/dut/counter
+add wave -noupdate /tb_top/dut/N_1
+add wave -noupdate /tb_top/dut/row
+add wave -noupdate /tb_top/dut/col
+add wave -noupdate -expand -subitemconfig {{/tb_top/dut/K_REG[0]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[1]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[2]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[3]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[4]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[5]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[6]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[7]} {-color {Cornflower Blue} -height 16} {/tb_top/dut/K_REG[8]} {-color {Cornflower Blue} -height 16}} /tb_top/dut/K_REG
+add wave -noupdate /tb_top/dut/frame_offset
+add wave -noupdate /tb_top/dut/frame_offset_1
+add wave -noupdate /tb_top/dut/frame_pointer
+add wave -noupdate /tb_top/dut/input_sram_read_address
+add wave -noupdate /tb_top/dut/input_sram_read_data
+add wave -noupdate -childformat {{{/tb_top/dut/IN_REG[0]} -radix decimal} {{/tb_top/dut/IN_REG[1]} -radix decimal} {{/tb_top/dut/IN_REG[2]} -radix decimal} {{/tb_top/dut/IN_REG[3]} -radix decimal} {{/tb_top/dut/IN_REG[4]} -radix decimal} {{/tb_top/dut/IN_REG[5]} -radix decimal} {{/tb_top/dut/IN_REG[6]} -radix decimal} {{/tb_top/dut/IN_REG[7]} -radix decimal} {{/tb_top/dut/IN_REG[8]} -radix decimal} {{/tb_top/dut/IN_REG[9]} -radix decimal} {{/tb_top/dut/IN_REG[10]} -radix decimal} {{/tb_top/dut/IN_REG[11]} -radix decimal} {{/tb_top/dut/IN_REG[12]} -radix decimal} {{/tb_top/dut/IN_REG[13]} -radix decimal} {{/tb_top/dut/IN_REG[14]} -radix decimal} {{/tb_top/dut/IN_REG[15]} -radix decimal}} -expand -subitemconfig {{/tb_top/dut/IN_REG[0]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[1]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[2]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[3]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[4]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[5]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[6]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[7]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[8]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[9]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[10]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[11]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[12]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[13]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[14]} {-color Gold -height 16 -radix decimal} {/tb_top/dut/IN_REG[15]} {-color Gold -height 16 -radix decimal}} /tb_top/dut/IN_REG
+add wave -noupdate /tb_top/dut/mult
+add wave -noupdate -expand -subitemconfig {{/tb_top/dut/MAC[0]} {-color Magenta -height 16} {/tb_top/dut/MAC[1]} {-color Magenta -height 16} {/tb_top/dut/MAC[2]} {-color Magenta -height 16} {/tb_top/dut/MAC[3]} {-color Magenta -height 16}} /tb_top/dut/MAC
+add wave -noupdate /tb_top/dut/pool_mid
+add wave -noupdate /tb_top/dut/pool_out
+add wave -noupdate /tb_top/dut/ReLU_mid
+add wave -noupdate /tb_top/dut/ReLU_out
+add wave -noupdate /tb_top/dut/OUT_REG
+add wave -noupdate /tb_top/dut/OUT_wait
+add wave -noupdate /tb_top/dut/output_sram_write_enable
+add wave -noupdate /tb_top/dut/output_sram_write_addresss
+add wave -noupdate /tb_top/dut/output_sram_write_data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {554 ns} 0}
+WaveRestoreCursors {{Cursor 1} {695 ns} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 279
-configure wave -valuecolwidth 84
+configure wave -namecolwidth 317
+configure wave -valuecolwidth 125
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -64,4 +56,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {558 ns} {799 ns}
+WaveRestoreZoom {1815 ns} {1999 ns}
