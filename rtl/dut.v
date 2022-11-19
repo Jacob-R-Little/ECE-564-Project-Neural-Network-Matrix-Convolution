@@ -115,7 +115,7 @@ begin
 			else if (input_sram_read_data == 16'hFFFF) next_state = S_reset;
 			else next_state = S_read_IN;
     S_read_IN:
-			if (counter == 8) next_state = S_update_pos;
+			if (((col != 0) && (counter == 4)) || (counter == 8)) next_state = S_update_pos;
 			else next_state = S_read_IN;
     S_update_pos:
 			next_state = S_MAC;
@@ -133,8 +133,6 @@ begin
   input_sram_write_enable = 0;
   weights_sram_write_enable = 0;
   output_sram_write_enable = 1;
-  // if (state == S_OUT) output_sram_write_enable = 1;
-  // else output_sram_write_enable = 0;
 
 	// Read Address Assertions
   weights_sram_read_address = counter;
@@ -149,8 +147,8 @@ always@(posedge clk)
 begin
 
 	// synchronous reset
-	if (!reset_b) state <= S_reset;	// reset to state S0
-	else state <= next_state;	// update state if no reset
+	if (!reset_b) state <= S_reset;
+	else state <= next_state;
 
 	// busy signal
   if (state == S_reset) dut_busy <= 0;
@@ -180,7 +178,6 @@ begin
 	else if (state == S_get_N && counter == 0) frame_pointer <= frame_pointer + 1;
   else if (state == S_update_FP)
 	begin
-		// if ((row == 0) && (col == 0)) 
     if ((frame_pointer > 1) && (row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
     else if ((frame_pointer > 1) && (col == 0)) frame_pointer <= frame_pointer + N_1 + 2;
     else frame_pointer <= frame_pointer + 1;
@@ -189,8 +186,19 @@ begin
 	// input read
   if ((state == S_read_IN) && (counter > 0))
   begin
-      IN_REG[(counter - 1) << 1] = input_sram_read_data[15:8];
-      IN_REG[((counter - 1) << 1) + 1] = input_sram_read_data[7:0];
+      if (col == 0)
+      begin
+        IN_REG[(counter - 1) << 1] = input_sram_read_data[15:8];
+        IN_REG[((counter - 1) << 1) + 1] = input_sram_read_data[7:0];
+      end
+      else
+      begin
+        IN_REG[((counter - 1) << 2)] = IN_REG[((counter - 1) << 2) + 2];
+        IN_REG[((counter - 1) << 2) + 1] = IN_REG[((counter - 1) << 2) + 3];
+        IN_REG[((counter - 1) << 2) + 2] = input_sram_read_data[15:8];
+        IN_REG[((counter - 1) << 2) + 3] = input_sram_read_data[7:0];
+      end
+
   end
   
 	// rows and columns
@@ -249,10 +257,10 @@ begin
 end
 
 // calculate offsets from frame pointer for input read address
-assign frame_offset[0] = (counter > 1) ? N_1 : 0;
-assign frame_offset[1] = (counter > 3) ? N_1 : 0;
-assign frame_offset[2] = (counter > 5) ? N_1 : 0;
-assign frame_offset_1 = counter[0];
+assign frame_offset[0] = ((col == 0) ? (counter > 1) : (counter > 0)) ? N_1 : 0;
+assign frame_offset[1] = ((col == 0) ? (counter > 3) : (counter > 1)) ? N_1 : 0;
+assign frame_offset[2] = ((col == 0) ? (counter > 5) : (counter > 2)) ? N_1 : 0;
+assign frame_offset_1 = (col != 0) ? 1 : counter[0];
 
 // 4 multipliers
 assign mult[0] = IN_REG[counter +     (counter > 2) + (counter > 5)] * K_REG[counter];
