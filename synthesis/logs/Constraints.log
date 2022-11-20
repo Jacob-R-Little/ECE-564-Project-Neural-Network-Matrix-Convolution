@@ -248,7 +248,7 @@ check_design
 ****************************************
 check_design summary:
 Version:     S-2021.06-SP3
-Date:        Sat Nov 19 02:01:36 2022
+Date:        Sat Nov 19 21:32:35 2022
 ****************************************
 
                    Name                                            Total
@@ -265,15 +265,15 @@ Cells                                                              18
 Warning: In design 'MyDesign', cell 'B_107' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_108' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_109' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'B_110' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'C2569' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'C2571' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'C2597' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'C2577' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'B_119' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'C2591' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_121' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'C2611' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'C2607' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'C2609' does not drive any nets. (LINT-1)
+Warning: In design 'MyDesign', cell 'C2616' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'C2619' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'C2622' does not drive any nets. (LINT-1)
-Warning: In design 'MyDesign', cell 'C2625' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_123' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_124' does not drive any nets. (LINT-1)
 Warning: In design 'MyDesign', cell 'B_125' does not drive any nets. (LINT-1)

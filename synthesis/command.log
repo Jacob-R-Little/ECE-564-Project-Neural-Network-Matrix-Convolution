@@ -1,7 +1,7 @@
 #@ # 
 #@ # Running dc_shell Version S-2021.06-SP3 for linux64 -- Oct 14, 2021
-#@ # Date:   Sat Nov 19 02:01:33 2022
-#@ # Run by: jlittle4@grendel30.ece.ncsu.edu
+#@ # Date:   Sat Nov 19 21:32:32 2022
+#@ # Run by: jlittle4@grendel33.ece.ncsu.edu
 #@ 
 
 source /mnt/apps/public/COE/synopsys_apps/syn/S-2021.06-SP3/admin/setup/.synopsys_dc.setup

@@ -69,9 +69,6 @@ reg [2:0] next_state;
 wire [5:0] frame_offset [0:2];
 wire frame_offset_1;
 
-reg [7:0] IN_net [0:15];
-reg [7:0] K_net [0:8];
-
 wire signed [15:0] mult [0:3];
 
 wire signed [19:0] pool_mid [0:1];
@@ -158,7 +155,7 @@ begin
   if (state == next_state) counter <= counter + 1;
   else counter <= 0;
 
-	// kernel read and N >> 1
+	// kernel read
 	if (state == S_read_K)
   begin
 
@@ -170,18 +167,8 @@ begin
     else if (counter == 5) K_REG[(counter - 1) << 1] = weights_sram_read_data[15:8];
   end
 
-  // N >> 1
+  // read N >> 1
 	if (state == S_get_N) N_1 <= input_sram_read_data[6:0] >> 1;
-
-	// frame pointer
-  if (state == S_reset) frame_pointer <= 0;
-	else if (state == S_get_N && counter == 0) frame_pointer <= frame_pointer + 1;
-  else if (state == S_update_FP)
-	begin
-    if ((row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
-    else if (col == 0) frame_pointer <= frame_pointer + N_1 + 2;
-    else frame_pointer <= frame_pointer + 1;
-	end
 
 	// input read
   if ((state == S_read_IN) && (counter > 0))
@@ -198,7 +185,6 @@ begin
         IN_REG[((counter - 1) << 2) + 2] = input_sram_read_data[15:8];
         IN_REG[((counter - 1) << 2) + 3] = input_sram_read_data[7:0];
       end
-
   end
   
 	// rows and columns
@@ -254,6 +240,16 @@ begin
       OUT_wait <= 1;
     end
   end
+
+  // frame pointer
+  if (state == S_reset) frame_pointer <= 0;
+	else if (state == S_get_N && counter == 0) frame_pointer <= frame_pointer + 1;
+  else if (state == S_update_FP)
+	begin
+    if ((row == 0) && (col == 0)) frame_pointer <= frame_pointer + N_1 + N_1 + N_1 + 2;
+    else if (col == 0) frame_pointer <= frame_pointer + N_1 + 2;
+    else frame_pointer <= frame_pointer + 1;
+	end
 end
 
 // calculate offsets from frame pointer for input read address

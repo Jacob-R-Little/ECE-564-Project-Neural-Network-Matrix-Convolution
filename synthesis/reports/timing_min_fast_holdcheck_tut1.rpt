@@ -7,7 +7,7 @@ Report : timing
         -max_paths 1
 Design : MyDesign
 Version: S-2021.06-SP3
-Date   : Sat Nov 19 02:03:07 2022
+Date   : Sat Nov 19 21:32:55 2022
 ****************************************
 
 Operating Conditions: fast   Library: NangateOpenCellLibrary_PDKv1_2_v2008_10_fast_nldm
@@ -25,10 +25,10 @@ Wire Load Model Mode: top
   clock clk (rise edge)                  0.0000     0.0000
   clock network delay (ideal)            0.0000     0.0000
   frame_pointer_reg[0]/CK (DFF_X1)       0.0000     0.0000 r
-  frame_pointer_reg[0]/Q (DFF_X1)        0.0634     0.0634 r
-  U4085/ZN (AOI22_X1)                    0.0200     0.0834 f
-  frame_pointer_reg[0]/D (DFF_X1)        0.0000     0.0834 f
-  data arrival time                                 0.0834
+  frame_pointer_reg[0]/Q (DFF_X1)        0.0632     0.0632 r
+  U4058/ZN (AOI22_X1)                    0.0200     0.0832 f
+  frame_pointer_reg[0]/D (DFF_X1)        0.0000     0.0832 f
+  data arrival time                                 0.0832
 
   clock clk (rise edge)                  0.0000     0.0000
   clock network delay (ideal)            0.0000     0.0000
@@ -38,9 +38,9 @@ Wire Load Model Mode: top
   data required time                                0.0503
   -----------------------------------------------------------
   data required time                                0.0503
-  data arrival time                                -0.0834
+  data arrival time                                -0.0832
   -----------------------------------------------------------
-  slack (MET)                                       0.0331
+  slack (MET)                                       0.0329
 
 
 1
