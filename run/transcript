@@ -1,5 +1,5 @@
 # vsim -voptargs="+acc" -c tb_top "+RUN_TYPE=base" "+CLASS=564" "+ROUNDS=2" "+TIMEOUT=1000000" -do "run -all" 
-# Start time: 21:31:33 on Nov 19,2022
+# Start time: 00:27:03 on Nov 20,2022
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # //  ModelSim SE 2021.2 Apr 14 2021 Linux 3.10.0-1160.80.1.el7.x86_64
 # //
@@ -70,5 +70,5 @@
 # 
 # ** Note: $finish    : ../testbench/testbench.sv(349)
 #    Time: 69385 ns  Iteration: 1  Instance: /tb_top
-# End time: 21:31:34 on Nov 19,2022, Elapsed time: 0:00:01
+# End time: 00:27:04 on Nov 20,2022, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 0
