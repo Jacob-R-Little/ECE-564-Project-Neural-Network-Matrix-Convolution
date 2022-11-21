@@ -1,9 +1,7 @@
 m255
 K4
 z2
-Z0 !s99 nomlopt
-R0
-R0
+!s99 nomlopt
 !s11f vlog 2021.2 2021.04, Apr 14 2021
 13
 !s112 1.1
@@ -11,85 +9,85 @@ R0
 !i10e 25
 !i10f 100
 cModel Technology
-Z1 d/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/run
+Z0 d/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/run
 T_opt
-!s110 1668910242
-VJ=QWn7MMd>7_[o2`CG[l@3
+!s110 1668983106
+VazjIeA]UQg7nF>lkHo@MT3
 04 6 4 work tb_top fast 0
-=3-801844eb7c03-63798ca2-1ad06-6c9c
+=1-008cfa039b3c-637aa942-532d9-39c9
 !s124 OEM100
 o-quiet -auto_acc_if_foreign -work work +acc
-Z2 tCvgOpt 0
+Z1 tCvgOpt 0
 n@_opt
 OE;O;2021.2;73
 vMyDesign
-!s110 1668910241
+!s110 1668983101
 !i10b 1
-!s100 ?2HB4GD@U`zAJ9mNB8ALU0
-IQ^cVT6:h@knAoOCD4GlLW2
-R1
-w1668910187
-8/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v
-F/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v
-!i122 2
-L0 1 279
-Z3 VDg1SIo80bB@j0V0VzS_@n1
-Z4 OE;L;2021.2;73
+!s100 EGXem>]BM7gP[4XB>92`60
+I]RJA2Q3me?1d0MiajXLlQ3
+R0
+w1668911484
+8../rtl/dut.v
+F../rtl/dut.v
+!i122 0
+L0 1 276
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+Z3 OE;L;2021.2;73
 r1
 !s85 0
 31
-!s108 1668910240.000000
-!s107 /afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v|
-!s90 -reportprogress|300|-work|work|/afs/unity.ncsu.edu/users/j/jlittle4/ECE564/projectFall2022/rtl/dut.v|
+Z4 !s108 1668983101.000000
+Z5 !s107 ../testbench/sram.sv|../testbench/testbench.sv|../rtl/dut.v|
+Z6 !s90 ../rtl/dut.v|../testbench/testbench.sv|
 !i113 0
-o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-R2
+Z7 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R1
 n@my@design
 vsram
-Z5 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-Z6 !s110 1668891149
+Z8 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z9 !s110 1668983102
 !i10b 1
 !s100 nkaXOmI6C99c=We?bHdcM1
 ITFCfhg3Q0VCcLKSDBH=z10
 S1
-R1
-Z7 w1668471905
+R0
+Z10 w1668471905
 8../testbench/sram.sv
 F../testbench/sram.sv
 !i122 0
 L0 4 91
+R2
 R3
-R4
 r1
 !s85 0
 31
-Z8 !s108 1668891148.000000
-Z9 !s107 ../testbench/sram.sv|../testbench/testbench.sv|../rtl/dut.v|
-Z10 !s90 ../rtl/dut.v|../testbench/testbench.sv|
-!i113 0
-Z11 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-R2
-vtb_top
+R4
 R5
 R6
+!i113 0
+R7
+R1
+vtb_top
+R8
+R9
 !i10b 1
 !s100 clDW57WzAg=NMRlOCK9H^3
 I2nFM;OOWa]NCl4NJcTKch2
 S1
-R1
-R7
+R0
+R10
 8../testbench/testbench.sv
 F../testbench/testbench.sv
 !i122 0
 L0 2 351
+R2
 R3
-R4
 r1
 !s85 0
 31
-R8
-R9
-R10
+R4
+R5
+R6
 !i113 0
-R11
-R2
+R7
+R1

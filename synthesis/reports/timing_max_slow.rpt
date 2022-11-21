@@ -7,67 +7,71 @@ Report : timing
         -max_paths 1
 Design : MyDesign
 Version: S-2021.06-SP3
-Date   : Sat Nov 19 21:32:53 2022
+Date   : Sun Nov 20 19:33:39 2022
 ****************************************
 
 Operating Conditions: slow   Library: NangateOpenCellLibrary_PDKv1_2_v2008_10_slow_nldm
 Wire Load Model Mode: top
 
-  Startpoint: MAC_reg[3][1]
+  Startpoint: counter_reg[2]
               (rising edge-triggered flip-flop clocked by clk)
-  Endpoint: output_sram_write_data_reg[9]
+  Endpoint: MAC_reg[0][11]
             (rising edge-triggered flip-flop clocked by clk)
   Path Group: clk
   Path Type: max
 
-  Point                                                   Incr       Path
-  --------------------------------------------------------------------------
-  clock clk (rise edge)                                 0.0000     0.0000
-  clock network delay (ideal)                           0.0000     0.0000
-  MAC_reg[3][1]/CK (DFF_X1)                             0.0000     0.0000 r
-  MAC_reg[3][1]/Q (DFF_X1)                              0.6252     0.6252 f
-  U2143/ZN (OAI22_X1)                                   0.3803     1.0055 r
-  U2144/ZN (OAI221_X1)                                  0.2587     1.2642 f
-  U2145/ZN (OAI221_X1)                                  0.2708     1.5350 r
-  U2146/ZN (OAI21_X1)                                   0.2191     1.7541 f
-  U2147/ZN (AOI21_X1)                                   0.3972     2.1514 r
-  U2150/ZN (AOI221_X1)                                  0.1492     2.3005 f
-  U2170/ZN (OAI21_X1)                                   0.2404     2.5409 r
-  U2171/ZN (NAND2_X1)                                   0.1203     2.6612 f
-  U2176/ZN (AOI222_X2)                                  0.9721     3.6333 r
-  U2224/Z (CLKBUF_X3)                                   0.5037     4.1370 r
-  U2260/Z (MUX2_X1)                                     0.8306     4.9677 f
-  U2264/ZN (INV_X1)                                     0.1142     5.0819 r
-  U2265/ZN (OAI21_X1)                                   0.0829     5.1648 f
-  U2266/ZN (OAI21_X1)                                   0.2216     5.3864 r
-  U2267/ZN (OAI221_X1)                                  0.2023     5.5886 f
-  U2268/ZN (OAI221_X1)                                  0.2621     5.8508 r
-  U2269/ZN (OAI21_X1)                                   0.2191     6.0698 f
-  U2270/ZN (AOI21_X1)                                   0.3972     6.4671 r
-  U2275/ZN (AOI221_X1)                                  0.1492     6.6163 f
-  U2308/ZN (OAI21_X1)                                   0.2404     6.8566 r
-  U2309/ZN (NAND2_X1)                                   0.1097     6.9663 f
-  U2312/ZN (AOI221_X1)                                  0.3587     7.3250 r
-  U2313/Z (CLKBUF_X3)                                   0.3806     7.7057 r
-  U2326/ZN (AOI21_X1)                                   0.1509     7.8565 f
-  U1460/ZN (AOI211_X1)                                  0.6438     8.5003 r
-  U1461/ZN (NOR2_X1)                                    0.2017     8.7020 f
-  U4139/ZN (AOI21_X1)                                   0.4990     9.2010 r
-  U4157/ZN (OAI222_X1)                                  0.3124     9.5134 f
-  output_sram_write_data_reg[9]/D (DFF_X2)              0.0000     9.5134 f
-  data arrival time                                                9.5134
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                  0.0000     0.0000
+  clock network delay (ideal)            0.0000     0.0000
+  counter_reg[2]/CK (DFF_X2)             0.0000     0.0000 r
+  counter_reg[2]/QN (DFF_X2)             0.5122     0.5122 r
+  U6125/ZN (INV_X4)                      0.0798     0.5920 f
+  U2238/ZN (AND2_X2)                     0.1983     0.7904 f
+  U1811/ZN (NAND2_X4)                    0.1367     0.9270 r
+  U4689/ZN (NAND2_X2)                    0.0880     1.0150 f
+  U2077/ZN (INV_X4)                      0.0849     1.0999 r
+  U3741/ZN (NAND3_X2)                    0.0668     1.1667 f
+  U3743/ZN (NOR2_X4)                     0.1860     1.3527 r
+  U4550/ZN (INV_X4)                      0.0645     1.4172 f
+  U3498/ZN (INV_X4)                      0.1603     1.5775 r
+  U3725/ZN (NAND2_X1)                    0.0983     1.6758 f
+  U4373/ZN (NAND4_X2)                    0.2639     1.9397 r
+  U5990/ZN (NAND3_X1)                    0.1388     2.0785 f
+  U1694/ZN (AND3_X2)                     0.2712     2.3498 f
+  U6067/ZN (NAND2_X2)                    0.0994     2.4492 r
+  U5989/ZN (INV_X1)                      0.0605     2.5097 f
+  U4704/ZN (NOR2_X2)                     0.1381     2.6478 r
+  U2571/ZN (INV_X1)                      0.0486     2.6964 f
+  U3094/ZN (NAND2_X1)                    0.1170     2.8134 r
+  U4703/ZN (NAND2_X2)                    0.0782     2.8915 f
+  U4705/ZN (XNOR2_X2)                    0.2465     3.1381 f
+  U1550/ZN (INV_X1)                      0.1099     3.2480 r
+  U2496/ZN (NAND2_X1)                    0.0731     3.3211 f
+  U3740/ZN (NAND2_X2)                    0.1312     3.4523 r
+  U3739/ZN (XNOR2_X2)                    0.2954     3.7477 r
+  U1880/ZN (INV_X1)                      0.0786     3.8263 f
+  U4424/ZN (NAND2_X2)                    0.1113     3.9375 r
+  U4456/ZN (NAND3_X2)                    0.1117     4.0492 f
+  U4061/ZN (NAND3_X4)                    0.1363     4.1855 r
+  U4049/ZN (INV_X1)                      0.0603     4.2458 f
+  U2865/ZN (NAND3_X1)                    0.1139     4.3596 r
+  U1697/ZN (NAND3_X1)                    0.1190     4.4787 f
+  U1696/ZN (AND2_X1)                     0.1701     4.6488 f
+  MAC_reg[0][11]/D (DFF_X2)              0.0000     4.6488 f
+  data arrival time                                 4.6488
 
-  clock clk (rise edge)                                10.0000    10.0000
-  clock network delay (ideal)                           0.0000    10.0000
-  clock uncertainty                                    -0.0500     9.9500
-  output_sram_write_data_reg[9]/CK (DFF_X2)             0.0000     9.9500 r
-  library setup time                                   -0.3694     9.5806
-  data required time                                               9.5806
-  --------------------------------------------------------------------------
-  data required time                                               9.5806
-  data arrival time                                               -9.5134
-  --------------------------------------------------------------------------
-  slack (MET)                                                      0.0672
+  clock clk (rise edge)                  5.0000     5.0000
+  clock network delay (ideal)            0.0000     5.0000
+  clock uncertainty                     -0.0500     4.9500
+  MAC_reg[0][11]/CK (DFF_X2)             0.0000     4.9500 r
+  library setup time                    -0.3008     4.6492
+  data required time                                4.6492
+  -----------------------------------------------------------
+  data required time                                4.6492
+  data arrival time                                -4.6488
+  -----------------------------------------------------------
+  slack (MET)                                       0.0004
 
 
 1
